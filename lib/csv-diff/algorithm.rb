@@ -51,7 +51,7 @@ class CSVDiff
                         right_pos = right_common.index(key)
                         if left_pos != right_pos
                             # Move
-                            diffs[key].merge!(id.merge(:action => 'Move',
+                            diffs[key].merge!(id.merge!(:action => 'Move',
                                               :sibling_position => [left_idx + 1, right_idx + 1]))
                             #puts "Move #{left_idx} -> #{right_idx}: #{key}"
                         end
@@ -72,8 +72,8 @@ class CSVDiff
                 (left_keys - right_keys).each do |key|
                     # Delete
                     key_vals = key.split('~')
-                    child = key_vals.pop
-                    parent = key_vals.join('~')
+                    parent = key_vals[0...parent_fields].join('~')
+                    child = key_vals[parent_fields..-1].join('~')
                     left_parent = left_index[parent]
                     left_value = left_values[key]
                     left_idx = left_parent.index(key)
