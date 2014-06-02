@@ -73,7 +73,7 @@ class CSVDiff
                 @parent_fields = @key_fields[0...-1]
                 @child_fields = @key_fields[-1..-1]
             else
-                @parent_fields = [options.fetch(:parent_field, options.fetch(:parent_fields, [1]))].flatten
+                @parent_fields = [options.fetch(:parent_field, options.fetch(:parent_fields, []))].flatten
                 @child_fields = [options.fetch(:child_field, options.fetch(:child_fields, [0]))].flatten
                 @key_fields = @parent_fields + @child_fields
             end
