@@ -1,76 +1,44 @@
-# ColorConsole
+# CSV-Diff
 
-ColorConsole is a small cross-platform library for outputting text to the console.
+CSV-Diff is a small library for performing diffs of CSV data.
+
+Unlike a standard diff that compares line by line, and is sensitive to the
+ordering of records, CSV-Diff identifies common lines by key field(s), and
+then compares the contents of the fields in each line.
+
+Data may be supplied in the form of CSV files, or as an array of arrays. The
+diff process provides a fine level of control over what to diff, and can
+optionally ignore certain types of changes (e.g. changes in position).
+
+CSV-Diff is particularly well suited to data in parent-child format. Parent-
+child data does not lend itself well to standard text diffs, as small changes
+in the organisation of the tree at an upper level can lead to big movements
+in the position of descendant records. By instead matching records by key,
+CSV-Diff avoids this issue, while still being able to detect changes in
+sibling order.
 
 
 ## Usage
 
-ColorConsole is supplied as a gem, and has no dependencies. To use it, simply:
+CSV-Diff is supplied as a gem, and has no dependencies. To use it, simply:
 ```
-gem install color-console
+gem install csv-diff
 ```
 
-ColorConsole provides methods for outputting lines of text in different colors, using the `Console.write` and `Console.puts` functions.
-
+To compare two CSV files where the field names are in the first row of the file,
+and the first field contains the unique key for each record, simply use:
 ```ruby
-require 'color-console'
+require 'csv-diff'
 
-Console.puts "Some text"                    # Outputs text using the current console colours
-Console.puts "Some other text", :red        # Outputs red text with the current background
-Console.puts "Yet more text", nil, :blue    # Outputs text using the current foreground and a blue background
-
-# The following lines output BlueRedGreen on a single line, each word in the appropriate color
-Console.write "Blue ", :blue
-Console.write "Red ", :red
-Console.write "Green", :green
+diff = CSVDiff.new(file1, file2)
 ```
-
-## Features
-
-In addition to `Console.puts` and `Console.write` for outputting text in color, ColorConsole also supports:
-* __Setting the console title__: The title bar of the console window can be set using `Console.title = 'My title'`.
-* __Status messages__: Status messages (i.e. a line of text at the current scroll position) can be output and
-  updated at any time. The status message will remain at the current scroll point even as new text is output
-  using `Console.puts`.
-* __Progress bars__: A progress bar can be rendered like a status message, but with a pseudo-graphical representation
-  of the current completion percentage:
-
-    ```ruby
-    (0..100).do |i|
-        Console.show_progress('Processing data', i)
-    end
-    Console.clear_progress
-    ```
-    Output:
-    ```
-    [==============    35%                   ]  Processing data
-    ```
-* __Tables__: Data can be output in a tabular representation:
-
-    ```ruby
-    HEADER_ROW = ['Column 1', 'Column 2', 'Column 3', 'Column 4']
-    MIXED_ROW = [17,
-                 'A somewhat longer column',
-                 'A very very very long column that should wrap multple lines',
-                 'Another medium length column']
-    SECOND_ROW = [24,
-                  'Lorem ipsum',
-                  'Some more text',
-                  'Lorem ipsum dolor sit amet']
-
-    Console.display_table([HEADER_ROW, MIXED_ROW, SECOND_ROW], width: 100,
-                          col_sep: '|', row_sep: '-')
-    ```
-    Output:
-    ```
-    +----------+--------------------------+-----------------------------+-----------------------------+
-    | Column 1 | Column 2                 | Column 3                    | Column 4                    |
-    +----------+--------------------------+-----------------------------+-----------------------------+
-    |       17 | A somewhat longer column | A very very very long       | Another medium length       |
-    |          |                          | column that should wrap     | column                      |
-    |          |                          | multple lines               |                             |
-    +----------+--------------------------+-----------------------------+-----------------------------+
-    |       24 | Lorem ipsum              | Some more text              | Lorem ipsum dolor sit amet  |
-    +----------+--------------------------+-----------------------------+-----------------------------+
-    ```
+The returned diff object can be queried for the differences that exist between
+the two files, e.g.:
+```ruby
+puts diff.summary.inspect   # Summary of the adds, deletes, updates, and moves
+puts diff.adds.inspect      # Details of the additions to file2
+puts diff.deletes.inspect   # Details of the deletions to file1
+puts diff.updates.inspect   # Details of the updates from file1 to file2
+puts diff.moves.inspect     # Details of the moves from file1 to file2
+puts diff.diffs.inspect     # Details of all differences
 
