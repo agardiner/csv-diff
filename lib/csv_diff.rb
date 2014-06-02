@@ -1,0 +1,2 @@
+require 'csv-diff'
+
