@@ -62,16 +62,19 @@ class CSVDiff
 
     # Performs a diff with the specified +options+.
     def diff(options = {})
+        @summary = nil
         @diffs = diff_sources(@left, @right, @key_fields, @diff_fields, options)
     end
 
 
     # Returns a summary of the number of adds, deletes, moves, and updates.
     def summary
-        summ = Hash.new{ |h, k| h[k] = 0 }
-        @diffs.each{ |k, v| summ[v[:action]] += 1 }
-        summ['Warnings'] = warnings.size if warnings.size > 0
-        summ
+        unless @summary
+            @summary = Hash.new{ |h, k| h[k] = 0 }
+            @diffs.each{ |k, v| @summary[v[:action]] += 1 }
+            @summary['Warnings'] = warnings.size if warnings.size > 0
+        end
+        @summary
     end
 
 
