@@ -70,6 +70,7 @@ class CSVDiff
     def summary
         summ = Hash.new{ |h, k| h[k] = 0 }
         @diffs.each{ |k, v| summ[v[:action]] += 1 }
+        summ['Warnings'] = warnings.size if warnings.size > 0
         summ
     end
 
