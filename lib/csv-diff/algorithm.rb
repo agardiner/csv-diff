@@ -86,7 +86,7 @@ class CSVDiff
                     key_fields.each do |field_name|
                         id[field_name] = left_value[field_name]
                     end
-                    diffs[key].merge!(id.merge(:action => 'Delete'))
+                    diffs[key].merge!(id.merge(left_values[key].merge(:action => 'Delete')))
                     #puts "Delete: #{key}"
                 end
             end
