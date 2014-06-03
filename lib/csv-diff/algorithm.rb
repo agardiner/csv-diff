@@ -22,8 +22,10 @@ class CSVDiff
             right_keys = right_values.keys
             parent_fields = left.parent_fields.length
 
-            include_moves = options.fetch(:include_moves, true)
-            include_deletes = options.fetch(:include_deletes, true)
+            include_adds = !options[:ignore_adds]
+            include_moves = !options[:ignore_moves]
+            include_updates = !options[:ignore_updates]
+            include_deletes = !options[:ignore_deletes]
 
             diffs = Hash.new{ |h, k| h[k] = {} }
             right_keys.each_with_index do |key, right_row_id|
@@ -56,11 +58,11 @@ class CSVDiff
                             #puts "Move #{left_idx} -> #{right_idx}: #{key}"
                         end
                     end
-                    if changes = diff_row(left_values[key], right_values[key], diff_fields)
+                    if include_updates && (changes = diff_row(left_values[key], right_values[key], diff_fields))
                         diffs[key].merge!(id.merge(changes.merge(:action => 'Update')))
                         #puts "Change: #{key}"
                     end
-                elsif right_idx
+                elsif include_adds && right_idx
                     # Add
                     diffs[key].merge!(id.merge(right_values[key].merge(:action => 'Add')))
                     #puts "Add: #{key}"
