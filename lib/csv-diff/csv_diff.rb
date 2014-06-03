@@ -58,6 +58,22 @@ class CSVDiff
     #   specified.
     # @options options [Array] :ignore_fields The names of any fields to be
     #   ignored when performing the diff.
+    # @option options [String] :key_field The name of the field that uniquely
+    #   identifies each row.
+    # @option options [Array<String>] :key_fields The names of the fields
+    #   that uniquely identifies each row.
+    # @option options [String] :parent_field The name of the field that
+    #   identifies a parent within which sibling order should be checked.
+    # @option options [String] :child_field The name of the field that
+    #   uniquely identifies a child of a parent.
+    # @option options [Boolean] :ignore_adds If true, records that appear in
+    #   the right/to file but not in the left/from file are not reported.
+    # @option options [Boolean] :ignore_updates If true, records that have been
+    #   updated are not reported.
+    # @option options [Boolean] :ignore_moves If true, changes in row position
+    #   amongst sibling rows are not reported.
+    # @option options [Boolean] :ignore_deletes If true, records that appear
+    #   in the left/from file but not in the right/to file are not reported.
     def initialize(left, right, options = {})
         @left = CSVSource.new(left, options)
         raise "No field names found in left (from) source" unless @left.field_names && @left.field_names.size > 0
