@@ -49,6 +49,8 @@ class CSVDiff
         # @param options [Hash] An options hash.
         # @option options [String] :mode_string The mode to use when opening the
         #   CSV file. Defaults to 'r'.
+        # @option options [Hash] :csv_options Any options you wish to pass to
+        #   CSV.open, e.g. :col_sep.
         # @option options [Array<String>] :field_names The names of each of the
         #   fields in +source+.
         # @option options [Boolean] :ignore_header If true, and :field_names has
@@ -61,12 +63,21 @@ class CSVDiff
         #   identifies a parent within which sibling order should be checked.
         # @option options [String] :child_field The name of the field that
         #   uniquely identifies a child of a parent.
+        # @option options [Boolean] :ignore_adds If true, records that appear in
+        #   the right/to file but not in the left/from file are not reported.
+        # @option options [Boolean] :ignore_updates If true, records that have been
+        #   updated are not reported.
+        # @option options [Boolean] :ignore_moves If true, changes in row position
+        #   amongst sibling rows are not reported.
+        # @option options [Boolean] :ignore_deletes If true, records that appear
+        #   in the left/from file but not in the right/to file are not reported.
         def initialize(source, options = {})
             if source.is_a?(String)
                 require 'csv'
                 mode_string = options.fetch(:mode_string, 'r')
+                csv_options = options.fetch(:csv_options, {})
                 @path = source
-                source = CSV.open(@path, mode_string).readlines
+                source = CSV.open(@path, mode_string, csv_options).readlines
             end
             if kf = options.fetch(:key_field, options[:key_fields])
                 @key_fields = [kf].flatten
