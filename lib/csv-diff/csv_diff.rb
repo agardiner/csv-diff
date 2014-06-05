@@ -45,11 +45,15 @@ class CSVDiff
     # child id, and the remaining fields (if any) are the parent field(s) that
     # uniquely qualify the child instance.
     #
-    # @param left [Array<Array<String>>] An Array of lines, each of which is in
-    #   turn an Array containing fields.
-    # @param right [Array<Array<String>>] An Array of lines, each of which is in
-    #   turn an Array containing fields.
+    # @param left [Array|String|CSVSource] An Array of lines, each of which is in
+    #   an Array of fields, or a String specifying a path to a CSV file, or a
+    #   CSVSource object.
+    # @param right [Array|String|CSVSource] An Array of lines, each of which is
+    #   an Array of fields, or a String specifying a path to a CSV file, or a
+    #   CSVSource object.
     # @param options [Hash] A hash containing options.
+    # @option options [String] :encoding The encoding to use when opening the
+    #   CSV files.
     # @option options [Array<String>] :field_names An Array of field names for
     #   each field in +left+ and +right+. If not provided, the first row is
     #   assumed to contain field names.
@@ -126,9 +130,9 @@ class CSVDiff
     # in both, on which members can be diffed.
     def get_diff_fields(left_fields, right_fields, ignore_fields)
         diff_fields = []
-        right_fields.each do |fld|
+        right_fields.each_with_index do |fld, i|
             if left_fields.include?(fld)
-                diff_fields << fld unless ignore_fields.include?(fld)
+                diff_fields << fld unless ignore_fields.include?(fld) || ignore_fields.include?(i)
             else
                 @warnings << "Field '#{fld}' is missing from the left (from) file, and won't be diffed"
             end

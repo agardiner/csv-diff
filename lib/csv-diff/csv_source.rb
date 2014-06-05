@@ -47,8 +47,8 @@ class CSVDiff
         #   Array of Arrays containing CSV data. If the :field_names option is
         #   not specified, the first line must contain the names of the fields.
         # @param options [Hash] An options hash.
-        # @option options [String] :mode_string The mode to use when opening the
-        #   CSV file. Defaults to 'r'.
+        # @option options [String] :encoding The encoding to use when opening the
+        #   CSV file.
         # @option options [Hash] :csv_options Any options you wish to pass to
         #   CSV.open, e.g. :col_sep.
         # @option options [Array<String>] :field_names The names of each of the
@@ -66,7 +66,7 @@ class CSVDiff
         def initialize(source, options = {})
             if source.is_a?(String)
                 require 'csv'
-                mode_string = options.fetch(:mode_string, 'r')
+                mode_string = options[:encoding] ? "r:#{options[:encoding]}" : 'r'
                 csv_options = options.fetch(:csv_options, {})
                 @path = source
                 source = CSV.open(@path, mode_string, csv_options).readlines
