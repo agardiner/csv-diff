@@ -116,10 +116,16 @@ class CSVDiff
     end
 
 
-    # @return [Array<String>] an array of warning messages generated during the
-    #    diff process.
+    # @return [Array<String>] an array of warning messages generated from the
+    #    sources and the diff process.
     def warnings
         @left.warnings + @right.warnings + @warnings
+    end
+
+
+    # @return [Array<String>] an array of warning messages from the diff process.
+    def diff_warnings
+        @warnings
     end
 
 
