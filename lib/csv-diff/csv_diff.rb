@@ -84,7 +84,7 @@ class CSVDiff
         @right = right.is_a?(CSVSource) ? right : CSVSource.new(right, options)
         raise "No field names found in right (to) source" unless @right.field_names && @right.field_names.size > 0
         @warnings = []
-        @diff_fields = get_diff_fields(@left.field_names, @right.field_names, options.fetch(:ignore_fields, []))
+        @diff_fields = get_diff_fields(@left.field_names, @right.field_names, options[:ignore_fields])
         @key_fields = @left.key_fields.map{ |kf| @diff_fields[kf] }
         diff(options)
     end
@@ -132,7 +132,8 @@ class CSVDiff
         diff_fields = []
         right_fields.each_with_index do |fld, i|
             if left_fields.include?(fld)
-                diff_fields << fld unless ignore_fields.include?(fld) || ignore_fields.include?(i)
+                diff_fields << fld unless ignore_fields && (ignore_fields.include?(fld) ||
+                                                            ignore_fields.include?(i))
             else
                 @warnings << "Field '#{fld}' is missing from the left (from) file, and won't be diffed"
             end
