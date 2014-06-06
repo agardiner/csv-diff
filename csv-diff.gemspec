@@ -26,4 +26,5 @@ GEMSPEC = Gem::Specification.new do |s|
     s.homepage = 'https://github.com/agardiner/csv-diff'
     s.require_paths = ['lib']
     s.files = ['README.md', 'LICENSE'] + Dir['lib/**/*.rb']
+    s.post_install_message = "For command-line tools and diff reports, 'gem install csv-diff-report'"
 end

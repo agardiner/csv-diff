@@ -31,7 +31,6 @@ class CSVDiff
             right_keys.each_with_index do |key, right_row_id|
                 key_vals = key.split('~')
                 parent = key_vals[0...parent_fields].join('~')
-                child = key_vals[parent_fields..-1].join('~')
                 left_parent = left_index[parent]
                 right_parent = right_index[parent]
                 left_value = left_values[key]
@@ -58,7 +57,7 @@ class CSVDiff
                             #puts "Move #{left_idx} -> #{right_idx}: #{key}"
                         end
                     end
-                    if include_updates && (changes = diff_row(left_values[key], right_values[key], diff_fields))
+                    if include_updates && (changes = diff_row(left_value, right_value, diff_fields))
                         diffs[key].merge!(id.merge(changes.merge(:action => 'Update')))
                         #puts "Change: #{key}"
                     end
@@ -75,7 +74,6 @@ class CSVDiff
                     # Delete
                     key_vals = key.split('~')
                     parent = key_vals[0...parent_fields].join('~')
-                    child = key_vals[parent_fields..-1].join('~')
                     left_parent = left_index[parent]
                     left_value = left_values[key]
                     left_idx = left_parent.index(key)
