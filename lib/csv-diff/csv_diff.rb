@@ -102,7 +102,7 @@ class CSVDiff
         unless @summary
             @summary = Hash.new{ |h, k| h[k] = 0 }
             @diffs.each{ |k, v| @summary[v[:action]] += 1 }
-            @summary['Warnings'] = warnings.size if warnings.size > 0
+            @summary['Warning'] = warnings.size if warnings.size > 0
         end
         @summary
     end
