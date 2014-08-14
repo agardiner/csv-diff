@@ -28,13 +28,15 @@ class CSVDiff
     # @return [Array<String>] An array of field names that are compared in the
     #    diff process.
     attr_reader :diff_fields
-    # @return [Array<Fixnum>] An array of field indexes identifying the key
-    #    fields that uniquely identify each row.
+    # @return [Array<String>] An array of field namees of the key fields that
+    #    uniquely identify each row.
     attr_reader :key_fields
     # @return [Array<String>] An array of field names for the parent field(s).
     attr_reader :parent_fields
     # @return [Array<String>] An array of field names for the child field(s).
     attr_reader :child_fields
+    # @return [Hash] The options hash used for the diff.
+    attr_reader :options
 
 
     # Generates a diff between two hierarchical tree structures, provided
@@ -94,6 +96,7 @@ class CSVDiff
     def diff(options = {})
         @summary = nil
         @diffs = diff_sources(@left, @right, @key_fields, @diff_fields, options)
+        @options = options
     end
 
 
