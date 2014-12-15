@@ -13,7 +13,20 @@ class CSVDiff
         #   that uniquely identify each row.
         # @param diff_fields [Array] An array containing the names of the fields
         #   to be diff-ed.
+        # @param options [Hash] An options hash.
+        # @option options [Boolean] :ignore_adds If set to true, we ignore any
+        #  new items that appear only in +right+.
+        # @option options [Boolean] :ignore_moves If set to true, we ignore any
+        #  changes in sibling order.
+        # @option options [Boolean] :ignore_updates If set to true, we ignore any
+        #  items that exist in both +left+ and +right+.
+        # @option options [Boolean] :ignore_deletes If set to true, we ignore any
+        #  new items that appear only in +left+.
         def diff_sources(left, right, key_fields, diff_fields, options = {})
+            unless left.case_sensitive? == right.case_sensitive?
+                raise ArgumentError, "Left and right must have same settings for case-sensitivity"
+            end
+            case_sensitive = left.case_sensitive?
             left_index = left.index
             left_values = left.lines
             left_keys = left_values.keys
@@ -57,7 +70,7 @@ class CSVDiff
                             #puts "Move #{left_idx} -> #{right_idx}: #{key}"
                         end
                     end
-                    if include_updates && (changes = diff_row(left_value, right_value, diff_fields))
+                    if include_updates && (changes = diff_row(left_value, right_value, diff_fields, case_sensitive))
                         diffs[key].merge!(id.merge(changes.merge(:action => 'Update')))
                         #puts "Change: #{key}"
                     end
@@ -99,17 +112,21 @@ class CSVDiff
         #   file.
         # @param right_row [Hash] The version of the CSV row from the right/to
         #   file.
+        # @param fields [Array<String>] An array of field names to compare.
+        # @param case_sensitive [Boolean] Whether field comparisons should be
+        #   case sensitive or not.
         # @return [Hash<String, Array>] A Hash whose keys are the fields that
         #   contain differences, and whose values are a two-element array of
         #   [left/from, right/to] values.
-        def diff_row(left_row, right_row, fields)
+        def diff_row(left_row, right_row, fields, case_sensitive)
             diffs = {}
             fields.each do |attr|
                 right_val = right_row[attr]
                 right_val = nil if right_val == ""
                 left_val = left_row[attr]
                 left_val = nil if left_val == ""
-                if left_val != right_val
+                if (case_sensitive && left_val != right_val) ||
+                   (left_val.to_s.upcase != right_val.to_s.upcase)
                     diffs[attr] = [left_val, right_val]
                     #puts "#{attr}: #{left_val} -> #{right_val}"
                 end

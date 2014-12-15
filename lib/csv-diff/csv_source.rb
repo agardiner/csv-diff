@@ -17,6 +17,11 @@ class CSVDiff
         # @return [Array<String>] The names of the field(s) that distinguish a
         #   child of a parent record.
         attr_reader :child_fields
+        # @return [Boolean] True if the source has been indexed with case-
+        #   sensitive keys, or false if it has been indexed using upper-case key
+        #   values.
+        attr_reader :case_sensitive
+        alias_method :case_sensitive?, :case_sensitive
         # @return [Hash<String,Hash>] A hash containing each line of the source,
         #   keyed on the values of the +key_fields+.
         attr_reader :lines
@@ -59,10 +64,13 @@ class CSVDiff
         #   identifies each row.
         # @option options [Array<String>] :key_fields The names of the fields
         #   that uniquely identifies each row.
-        # @option options [String] :parent_field The name of the field that
-        #   identifies a parent within which sibling order should be checked.
-        # @option options [String] :child_field The name of the field that
-        #   uniquely identifies a child of a parent.
+        # @option options [String] :parent_field The name of the field(s) that
+        #   identify a parent within which sibling order should be checked.
+        # @option options [String] :child_field The name of the field(s) that
+        #   uniquely identify a child of a parent.
+        # @option options [Boolean] :case_sensitive If true (the default), keys
+        #  are indexed as-is; if false, the index is built in upper-case for
+        #  case-insensitive comparisons.
         def initialize(source, options = {})
             if source.is_a?(String)
                 require 'csv'
@@ -104,6 +112,7 @@ class CSVDiff
             @lines = {}
             @index = Hash.new{ |h, k| h[k] = [] }
             @key_fields = find_field_indexes(@key_fields, @field_names) if @field_names
+            @case_sensitive = options.fetch(:case_sensitive, true)
             line_num = 0
             lines.each do |row|
                 line_num += 1
@@ -121,6 +130,7 @@ class CSVDiff
                 key_values = @key_fields.map{ |kf| field_vals[kf].to_s.upcase }
                 key = key_values.join('~')
                 parent_key = key_values[0...(@parent_fields.length)].join('~')
+                parent_key.upcase! unless @case_sensitive
                 if @lines[key]
                     @warnings << "Duplicate key '#{key}' encountered and ignored at line #{line_num}"
                 else
