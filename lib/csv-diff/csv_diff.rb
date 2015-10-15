@@ -95,8 +95,8 @@ class CSVDiff
     # Performs a diff with the specified +options+.
     def diff(options = {})
         @summary = nil
-        @diffs = diff_sources(@left, @right, @key_fields, @diff_fields, options)
         @options = options
+        @diffs = diff_sources(@left, @right, @key_fields, @diff_fields, options)
     end
 
 
