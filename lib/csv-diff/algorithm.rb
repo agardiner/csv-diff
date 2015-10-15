@@ -41,6 +41,29 @@ class CSVDiff
             include_deletes = !options[:ignore_deletes]
 
             diffs = Hash.new{ |h, k| h[k] = {} }
+
+            # First identify deletions
+            if include_deletes
+                (left_keys - right_keys).each do |key|
+                    # Delete
+                    key_vals = key.split('~')
+                    parent = key_vals[0...parent_fields].join('~')
+                    left_parent = left_index[parent]
+                    left_value = left_values[key]
+                    left_idx = left_parent.index(key)
+                    next unless left_idx
+                    id = {}
+                    id[:row] = left_keys.index(key) + 1
+                    id[:sibling_position] = left_idx + 1
+                    key_fields.each do |field_name|
+                        id[field_name] = left_value[field_name]
+                    end
+                    diffs[key].merge!(id.merge(left_values[key].merge(:action => 'Delete')))
+                    #puts "Delete: #{key}"
+                end
+            end
+
+            # Now identify adds/updates
             right_keys.each_with_index do |key, right_row_id|
                 key_vals = key.split('~')
                 parent = key_vals[0...parent_fields].join('~')
@@ -81,26 +104,6 @@ class CSVDiff
                 end
             end
 
-            # Now identify deletions
-            if include_deletes
-                (left_keys - right_keys).each do |key|
-                    # Delete
-                    key_vals = key.split('~')
-                    parent = key_vals[0...parent_fields].join('~')
-                    left_parent = left_index[parent]
-                    left_value = left_values[key]
-                    left_idx = left_parent.index(key)
-                    next unless left_idx
-                    id = {}
-                    id[:row] = left_keys.index(key) + 1
-                    id[:sibling_position] = left_idx + 1
-                    key_fields.each do |field_name|
-                        id[field_name] = left_value[field_name]
-                    end
-                    diffs[key].merge!(id.merge(left_values[key].merge(:action => 'Delete')))
-                    #puts "Delete: #{key}"
-                end
-            end
             diffs
         end
 
