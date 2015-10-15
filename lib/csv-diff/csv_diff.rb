@@ -138,8 +138,10 @@ class CSVDiff
     # Given two sets of field names, determines the common set of fields present
     # in both, on which members can be diffed.
     def get_diff_fields(left_fields, right_fields, options)
-        ignore_fields = (options[:ignore_fields] || []).map do |f|
-            f.is_a?(Fixnum) ? right_fields[f] : f
+        ignore_fields = options.fetch(:ignore_fields, [])
+        ignore_fields = [ignore_fields] unless ignore_fields.is_a?(Array)
+        ignore_fields.map! do |f|
+            (f.is_a?(Fixnum) ? right_fields[f] : f).upcase
         end
         diff_fields = []
         if options[:diff_common_fields_only]
@@ -151,7 +153,7 @@ class CSVDiff
                 end
             end
         else
-            diff_fields = (right_fields + left_fields).uniq.reject{ |fld| ignore_fields.include?(fld) }
+            diff_fields = (right_fields + left_fields).uniq.reject{ |fld| ignore_fields.include?(fld.upcase) }
         end
         diff_fields
     end
