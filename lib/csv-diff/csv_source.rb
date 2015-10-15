@@ -22,6 +22,9 @@ class CSVDiff
         #   values.
         attr_reader :case_sensitive
         alias_method :case_sensitive?, :case_sensitive
+        # @return [Boolean] True if leading/trailing whitespace should be stripped
+        #   from fields
+        attr_reader :trim_whitespace
         # @return [Hash<String,Hash>] A hash containing each line of the source,
         #   keyed on the values of the +key_fields+.
         attr_reader :lines
@@ -113,6 +116,7 @@ class CSVDiff
             @index = Hash.new{ |h, k| h[k] = [] }
             @key_fields = find_field_indexes(@key_fields, @field_names) if @field_names
             @case_sensitive = options.fetch(:case_sensitive, true)
+            @trim_whitespace = options.fetch(:trim_whitespace, false)
             line_num = 0
             lines.each do |row|
                 line_num += 1
@@ -126,6 +130,7 @@ class CSVDiff
                 line = {}
                 @field_names.each_with_index do |field, i|
                     line[field] = field_vals[i]
+                    line[field].strip! if @trim_whitespace && line[field]
                 end
                 key_values = @key_fields.map{ |kf| field_vals[kf].to_s.upcase }
                 key = key_values.join('~')
