@@ -147,7 +147,7 @@ class CSVDiff
         if options[:diff_common_fields_only]
             right_fields.each_with_index do |fld, i|
                 if left_fields.include?(fld)
-                    diff_fields << fld unless ignore_fields.include?(fld)
+                    diff_fields << fld unless ignore_fields.include?(fld.upcase)
                 else
                     @warnings << "Field '#{fld}' is missing from the left (from) file, and won't be diffed"
                 end
