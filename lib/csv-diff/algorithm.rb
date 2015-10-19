@@ -46,7 +46,7 @@ class CSVDiff
             if include_deletes
                 (left_keys - right_keys).each do |key|
                     # Delete
-                    key_vals = key.split('~')
+                    key_vals = key.split('~', -1)
                     parent = key_vals[0...parent_fields].join('~')
                     left_parent = left_index[parent]
                     left_value = left_values[key]
@@ -65,7 +65,7 @@ class CSVDiff
 
             # Now identify adds/updates
             right_keys.each_with_index do |key, right_row_id|
-                key_vals = key.split('~')
+                key_vals = key.split('~', -1)
                 parent = key_vals[0...parent_fields].join('~')
                 left_parent = left_index[parent]
                 right_parent = right_index[parent]
