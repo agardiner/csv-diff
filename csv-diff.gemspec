@@ -1,8 +1,8 @@
 GEMSPEC = Gem::Specification.new do |s|
     s.name = "csv-diff"
-    s.version = "0.3.0"
+    s.version = "0.3.1"
     s.authors = ["Adam Gardiner"]
-    s.date = "2014-08-14"
+    s.date = "2016-01-26"
     s.summary = "CSV Diff is a library for generating diffs from data in CSV format"
     s.description = <<-EOQ
         This library performs diffs of CSV files.
