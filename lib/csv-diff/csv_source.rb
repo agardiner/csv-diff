@@ -11,6 +11,9 @@ class CSVDiff
         # @return [Array<String>] The names of the field(s) that uniquely
         #   identify each row.
         attr_reader :key_fields
+        # @return [Array<Fixnum>] The indexes of the key fields in the source
+        #   file.
+        attr_reader :key_field_indexes
         # @return [Array<String>] The names of the field(s) that identify a
         #   common parent of child records.
         attr_reader :parent_fields
@@ -114,7 +117,7 @@ class CSVDiff
         def index_source(lines, options)
             @lines = {}
             @index = Hash.new{ |h, k| h[k] = [] }
-            @key_fields = find_field_indexes(@key_fields, @field_names) if @field_names
+            @key_field_indexes = find_field_indexes(@key_fields, @field_names) if @field_names
             @case_sensitive = options.fetch(:case_sensitive, true)
             @trim_whitespace = options.fetch(:trim_whitespace, false)
             line_num = 0
@@ -123,7 +126,7 @@ class CSVDiff
                 next if line_num == 1 && @field_names && options[:ignore_header]
                 unless @field_names
                     @field_names = row
-                    @key_fields = find_field_indexes(@key_fields, @field_names)
+                    @key_field_indexes = find_field_indexes(@key_fields, @field_names)
                     next
                 end
                 field_vals = row
@@ -132,7 +135,7 @@ class CSVDiff
                     line[field] = field_vals[i]
                     line[field].strip! if @trim_whitespace && line[field]
                 end
-                key_values = @key_fields.map{ |kf| field_vals[kf].to_s.upcase }
+                key_values = @key_field_indexes.map{ |kf| field_vals[kf].to_s.upcase }
                 key = key_values.join('~')
                 parent_key = key_values[0...(@parent_fields.length)].join('~')
                 parent_key.upcase! unless @case_sensitive

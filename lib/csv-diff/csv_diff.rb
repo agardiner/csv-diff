@@ -87,7 +87,7 @@ class CSVDiff
         raise "No field names found in right (to) source" unless @right.field_names && @right.field_names.size > 0
         @warnings = []
         @diff_fields = get_diff_fields(@left.field_names, @right.field_names, options)
-        @key_fields = @left.key_fields.map{ |kf| @diff_fields[kf] }
+        @key_fields = @left.key_fields
         diff(options)
     end
 
