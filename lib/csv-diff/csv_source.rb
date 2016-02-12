@@ -127,6 +127,7 @@ class CSVDiff
                 unless @field_names
                     @field_names = row
                     @key_field_indexes = find_field_indexes(@key_fields, @field_names)
+                    @key_fields = @key_field_indexes.map{ |i| @field_names[i] }
                     next
                 end
                 field_vals = row
