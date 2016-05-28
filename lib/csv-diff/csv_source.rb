@@ -6,20 +6,29 @@ class CSVDiff
 
         # @return [String] the path to the source file
         attr_accessor :path
+
         # @return [Array<String>] The names of the fields in the source file
         attr_reader :field_names
         # @return [Array<String>] The names of the field(s) that uniquely
         #   identify each row.
         attr_reader :key_fields
-        # @return [Array<Fixnum>] The indexes of the key fields in the source
-        #   file.
-        attr_reader :key_field_indexes
         # @return [Array<String>] The names of the field(s) that identify a
         #   common parent of child records.
         attr_reader :parent_fields
         # @return [Array<String>] The names of the field(s) that distinguish a
         #   child of a parent record.
         attr_reader :child_fields
+
+        # @return [Array<Fixnum>] The indexes of the key fields in the source
+        #   file.
+        attr_reader :key_field_indexes
+        # @return [Array<Fixnum>] The indexes of the parent fields in the source
+        #   file.
+        attr_reader :parent_field_indexes
+        # @return [Array<Fixnum>] The indexes of the child fields in the source
+        #   file.
+        attr_reader :child_field_indexes
+
         # @return [Boolean] True if the source has been indexed with case-
         #   sensitive keys, or false if it has been indexed using upper-case key
         #   values.
@@ -117,7 +126,9 @@ class CSVDiff
         def index_source(lines, options)
             @lines = {}
             @index = Hash.new{ |h, k| h[k] = [] }
-            @key_field_indexes = find_field_indexes(@key_fields, @field_names) if @field_names
+            if @field_names
+                index_fields
+            end
             @case_sensitive = options.fetch(:case_sensitive, true)
             @trim_whitespace = options.fetch(:trim_whitespace, false)
             line_num = 0
@@ -126,8 +137,7 @@ class CSVDiff
                 next if line_num == 1 && @field_names && options[:ignore_header]
                 unless @field_names
                     @field_names = row
-                    @key_field_indexes = find_field_indexes(@key_fields, @field_names)
-                    @key_fields = @key_field_indexes.map{ |i| @field_names[i] }
+                    index_fields
                     next
                 end
                 field_vals = row
@@ -147,6 +157,16 @@ class CSVDiff
                     @lines[key] = line
                 end
             end
+        end
+
+
+        def index_fields
+            @key_field_indexes = find_field_indexes(@key_fields, @field_names)
+            @parent_field_indexes = find_field_indexes(@parent_fields, @field_names)
+            @child_field_indexes = find_field_indexes(@child_fields, @field_names)
+            @key_fields = @key_field_indexes.map{ |i| @field_names[i] }
+            @parent_fields = @parent_field_indexes.map{ |i| @field_names[i] }
+            @child_fields = @child_field_indexes.map{ |i| @field_names[i] }
         end
 
 
