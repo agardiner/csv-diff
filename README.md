@@ -125,7 +125,7 @@ column in the data. In this case, a diff can be created simply via:
 diff = CSVDiff.new(file1, file2)
 ```
 
-### Specifynig Unique Row Identifiers
+### Specifying Unique Row Identifiers
 
 Often however, rows are not uniquely identifiable via the first column in the file.
 In a parent-child hierarchy, for example, combinations of parent and child may be
