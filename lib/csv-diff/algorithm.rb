@@ -104,7 +104,7 @@ class CSVDiff
                     row_idx = left_keys.index(key)
                     sib_idx = left_parent.index(key)
                     raise "Can't locate key #{key} in parent #{parent}" unless sib_idx
-                    diffs[key] = d = Diff.new(:delete, left_value, row_idx, sib_idx)
+                    diffs[key] = Diff.new(:delete, left_value, row_idx, sib_idx)
                     potential_moves[child] << key
                     #puts "Delete: #{key}"
                 end
