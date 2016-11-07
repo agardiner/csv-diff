@@ -94,7 +94,8 @@ class CSVDiff
                 @path = source
                 source = CSV.open(@path, mode_string, csv_options).readlines
             end
-            if kf = options.fetch(:key_field, options[:key_fields])
+            if (options.keys & [:parent_field, :parent_fields, :child_field, :child_fields]).empty? &&
+               (kf = options.fetch(:key_field, options[:key_fields]))
                 @key_fields = [kf].flatten
                 @parent_fields = @key_fields[0...-1]
                 @child_fields = @key_fields[-1..-1]
