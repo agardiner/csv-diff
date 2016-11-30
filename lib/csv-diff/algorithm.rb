@@ -71,11 +71,17 @@ class CSVDiff
         #  items that exist in both +left+ and +right+.
         # @option options [Boolean] :ignore_deletes If set to true, we ignore any
         #  new items that appear only in +left+.
+        # @option options [Hash<Object,Proc>] :equality_procs A Hash mapping fields
+        #  to a 2-arg Proc that should be used to compare values in that field for
+        #  equality.
         def diff_sources(left, right, key_fields, diff_fields, options = {})
             unless left.case_sensitive? == right.case_sensitive?
                 raise ArgumentError, "Left and right must have same settings for case-sensitivity"
             end
-            case_sensitive = left.case_sensitive?
+
+            # Ensure key fields are not also in the diff_fields
+            diff_fields = diff_fields - key_fields
+
             left_index = left.index
             left_values = left.lines
             left_keys = left_values.keys
@@ -88,6 +94,9 @@ class CSVDiff
             include_moves = !options[:ignore_moves]
             include_updates = !options[:ignore_updates]
             include_deletes = !options[:ignore_deletes]
+
+            @case_sensitive = left.case_sensitive?
+            @equality_procs = options.fetch(:equality_procs, {})
 
             diffs = {}
             potential_moves = Hash.new{ |h, k| h[k] = [] }
@@ -122,7 +131,7 @@ class CSVDiff
                 right_idx = right_parent && right_parent.index(key)
 
                 if left_idx && right_idx
-                    if include_updates && (changes = diff_row(left_value, right_value, diff_fields, case_sensitive))
+                    if include_updates && (changes = diff_row(left_value, right_value, diff_fields))
                         id = id_fields(key_fields, right_value)
                         diffs[key] = Diff.new(:update, id.merge!(changes), right_row_id, right_idx)
                         #puts "Change: #{key}"
@@ -151,7 +160,7 @@ class CSVDiff
                         if include_updates
                             left_value = left_values[old_key]
                             id = id_fields(right.child_fields, right_value)
-                            changes = diff_row(left_value, right_value, left.parent_fields + diff_fields, case_sensitive)
+                            changes = diff_row(left_value, right_value, left.parent_fields + diff_fields)
                             diffs[key] = Diff.new(:update, id.merge!(changes), right_row_id, right_idx)
                             #puts "Update Parent: #{key}"
                         end
@@ -174,22 +183,23 @@ class CSVDiff
         # @param right_row [Hash] The version of the CSV row from the right/to
         #   file.
         # @param fields [Array<String>] An array of field names to compare.
-        # @param case_sensitive [Boolean] Whether field comparisons should be
-        #   case sensitive or not.
         # @return [Hash<String, Array>] A Hash whose keys are the fields that
         #   contain differences, and whose values are a two-element array of
         #   [left/from, right/to] values.
-        def diff_row(left_row, right_row, fields, case_sensitive)
+        def diff_row(left_row, right_row, fields)
             diffs = {}
             fields.each do |attr|
+                eq_proc = @equality_procs[attr]
                 right_val = right_row[attr]
                 right_val = nil if right_val == ""
                 left_val = left_row[attr]
                 left_val = nil if left_val == ""
-                if (case_sensitive && left_val != right_val) ||
-                   (left_val.to_s.upcase != right_val.to_s.upcase)
+                if eq_proc
+                    diffs[attr] = [left_val, right_val] unless eq_proc.call(left_val, right_val)
+                elsif @case_sensitive
+                    diffs[attr] = [left_val, right_val] unless left_val == right_val
+                elsif (left_val.to_s.upcase != right_val.to_s.upcase)
                     diffs[attr] = [left_val, right_val]
-                    #puts "#{attr}: #{left_val} -> #{right_val}"
                 end
             end
             diffs if diffs.size > 0
