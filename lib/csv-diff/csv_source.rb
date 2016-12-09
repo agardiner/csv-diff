@@ -46,6 +46,9 @@ class CSVDiff
         # @return [Array<String>] An array of any warnings encountered while
         #   processing the source.
         attr_reader :warnings
+        # @return [Fixnum] A count of the lines processed from this source.
+        #   Excludes any header and duplicate records identified during indexing.
+        attr_reader :line_count
 
 
         # Creates a new diff source.
@@ -132,6 +135,7 @@ class CSVDiff
             end
             @case_sensitive = options.fetch(:case_sensitive, true)
             @trim_whitespace = options.fetch(:trim_whitespace, false)
+            @line_count = 0
             line_num = 0
             lines.each do |row|
                 line_num += 1
@@ -156,6 +160,7 @@ class CSVDiff
                 else
                     @index[parent_key] << key
                     @lines[key] = line
+                    @line_count += 1
                 end
             end
         end
