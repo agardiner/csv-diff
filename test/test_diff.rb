@@ -43,4 +43,19 @@ class TestDiff < Test::Unit::TestCase
     end
 
 
+    def test_include_filter
+        src = CSVDiff::CSVSource.new(DATA1, key_fields: [0, 1], include: {Description: /Account/})
+        assert_equal(0, src.skip_count)
+        src = CSVDiff::CSVSource.new(DATA2, key_fields: [0, 1], include: {Description: /Account/})
+        assert_equal(1, src.skip_count)
+    end
+
+
+    def test_exclude_filter
+        src = CSVDiff::CSVSource.new(DATA1, key_fields: [0, 1], exclude: {Description: /Account\d/})
+        assert_equal(1, src.skip_count)
+        src = CSVDiff::CSVSource.new(DATA2, key_fields: [0, 1], exclude: {2 => /Account\d/})
+        assert_equal(2, src.skip_count)
+    end
+
 end

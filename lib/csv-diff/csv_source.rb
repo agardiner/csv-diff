@@ -49,6 +49,9 @@ class CSVDiff
         # @return [Fixnum] A count of the lines processed from this source.
         #   Excludes any header and duplicate records identified during indexing.
         attr_reader :line_count
+        # @return [Fixnum] A count of the lines from this source that were skipped,
+        #   due either to duplicate keys or filter conditions.
+        attr_reader :skip_count
 
 
         # Creates a new diff source.
@@ -87,8 +90,14 @@ class CSVDiff
         # @option options [String] :child_field The name of the field(s) that
         #   uniquely identify a child of a parent.
         # @option options [Boolean] :case_sensitive If true (the default), keys
-        #  are indexed as-is; if false, the index is built in upper-case for
-        #  case-insensitive comparisons.
+        #   are indexed as-is; if false, the index is built in upper-case for
+        #   case-insensitive comparisons.
+        # @option options [Hash] :include A hash of field name(s) or index(es) to
+        #   regular expression(s). Only source rows whose field values satisfy the
+        #   regular expressions will be indexed and included in the diff process.
+        # @option options [Hash] :exclude A hash of field name(s) or index(es) to
+        #   regular expression(s). Source rows with a field value that satisfies
+        #   the regular expressions will be excluded from the diff process.
         def initialize(source, options = {})
             if source.is_a?(String)
                 require 'csv'
@@ -96,6 +105,9 @@ class CSVDiff
                 csv_options = options.fetch(:csv_options, {})
                 @path = source
                 source = CSV.open(@path, mode_string, csv_options).readlines
+            elsif !source.is_a?(Enumerable) || (source.is_a?(Enumerable) && source.size > 0 &&
+                                                !source.first.is_a?(Enumerable))
+                raise ArgumentError, "source must be a path to a file or an Enumerable<Enumerable>"
             end
             if (options.keys & [:parent_field, :parent_fields, :child_field, :child_fields]).empty? &&
                (kf = options.fetch(:key_field, options[:key_fields]))
@@ -131,25 +143,38 @@ class CSVDiff
             @lines = {}
             @index = Hash.new{ |h, k| h[k] = [] }
             if @field_names
-                index_fields
+                index_fields(options)
             end
             @case_sensitive = options.fetch(:case_sensitive, true)
             @trim_whitespace = options.fetch(:trim_whitespace, false)
             @line_count = 0
+            @skip_count = 0
             line_num = 0
             lines.each do |row|
                 line_num += 1
                 next if line_num == 1 && @field_names && options[:ignore_header]
                 unless @field_names
                     @field_names = row
-                    index_fields
+                    index_fields(options)
                     next
                 end
                 field_vals = row
                 line = {}
+                filter = false
                 @field_names.each_with_index do |field, i|
                     line[field] = field_vals[i]
                     line[field].strip! if @trim_whitespace && line[field]
+                    if @include_filter && re = @include_filter[i]
+                        filter = !re.match(line[field])
+                    end
+                    if @exclude_filter && re = @exclude_filter[i]
+                        filter = re.match(line[field])
+                    end
+                    break if filter
+                end
+                if filter
+                    @skip_count += 1
+                    next
                 end
                 key_values = @key_field_indexes.map{ |kf| field_vals[kf].to_s.upcase }
                 key = key_values.join('~')
@@ -157,6 +182,7 @@ class CSVDiff
                 parent_key.upcase! unless @case_sensitive
                 if @lines[key]
                     @warnings << "Duplicate key '#{key}' encountered and ignored at line #{line_num}"
+                    @skip_count += 1
                 else
                     @index[parent_key] << key
                     @lines[key] = line
@@ -166,13 +192,27 @@ class CSVDiff
         end
 
 
-        def index_fields
+        def index_fields(options)
             @key_field_indexes = find_field_indexes(@key_fields, @field_names)
             @parent_field_indexes = find_field_indexes(@parent_fields, @field_names)
             @child_field_indexes = find_field_indexes(@child_fields, @field_names)
             @key_fields = @key_field_indexes.map{ |i| @field_names[i] }
             @parent_fields = @parent_field_indexes.map{ |i| @field_names[i] }
             @child_fields = @child_field_indexes.map{ |i| @field_names[i] }
+
+            @include_filter = convert_filter(options, :include, @field_names)
+            @exclude_filter = convert_filter(options, :exclude, @field_names)
+        end
+
+
+        def convert_filter(options, key, field_names)
+            return unless hsh = options[key]
+            if !hsh.is_a?(Hash)
+                raise ArgumentError, ":#{key} option must be a Hash of field name(s)/index(es) to RegExp(s)"
+            end
+            keys = hsh.keys
+            idxs = find_field_indexes(keys, @field_names)
+            Hash[keys.each_with_index.map{ |k, i| [idxs[i], hsh[k]] }]
         end
 
 
@@ -188,6 +228,10 @@ class CSVDiff
                             field_names.join(', ')}"
                 end
             end
+        end
+
+
+        def include_line?(line)
         end
 
     end
