@@ -211,6 +211,23 @@ diff = CSVDiff.new(file1, file2, parent_field: 'Date', child_fields: ['HomeTeam'
                    ignore_fields: ['CreatedAt', 'UpdatedAt'])
 ```
 
+### Filtering Rows
+
+If you need to filter source data before running the diff process, you can use the :include
+and :exclude options to do so. Both options take a Hash as their value; the hash should have
+keys that are the field names or indexes (0-based) on which to filter, and whose values are
+regular expressions or lambdas to be applied to values of the corresponding field. Rows will
+only be diffed if they satisfy :include conditions, and do not satisfy :exclude conditions.
+```ruby
+# Generate a diff of Arsenal home games not refereed by Clattenburg
+diff = CSVDiff.new(file1, file2, parent_field: 'Date', child_fields: ['HomeTeam', 'AwayTeam'],
+                   include: {HomeTeam: 'Arsenal'}, exclude: {Referee: /Clattenburg/})
+
+# Generate a diff of games played over the Xmas/New Year period
+diff = CSVDiff.new(file1, file2, parent_field: 'Date', child_fields: ['HomeTeam', 'AwayTeam'],
+                   include: {Date: lambda{ |d| holiday_period.include?(Date.strptime(d, '%y/%m/%d')) } })
+```
+
 ### Ignoring Certain Changes
 
 CSVDiff identifies Adds, Updates, Moves and Deletes; any of these changes can be selectively

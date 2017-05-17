@@ -164,11 +164,11 @@ class CSVDiff
                 @field_names.each_with_index do |field, i|
                     line[field] = field_vals[i]
                     line[field].strip! if @trim_whitespace && line[field]
-                    if @include_filter && re = @include_filter[i]
-                        filter = !re.match(line[field])
+                    if @include_filter && f = @include_filter[i]
+                        filter = !check_filter(f, line[field])
                     end
-                    if @exclude_filter && re = @exclude_filter[i]
-                        filter = re.match(line[field])
+                    if @exclude_filter && f = @exclude_filter[i]
+                        filter = check_filter(f, line[field])
                     end
                     break if filter
                 end
@@ -205,17 +205,6 @@ class CSVDiff
         end
 
 
-        def convert_filter(options, key, field_names)
-            return unless hsh = options[key]
-            if !hsh.is_a?(Hash)
-                raise ArgumentError, ":#{key} option must be a Hash of field name(s)/index(es) to RegExp(s)"
-            end
-            keys = hsh.keys
-            idxs = find_field_indexes(keys, @field_names)
-            Hash[keys.each_with_index.map{ |k, i| [idxs[i], hsh[k]] }]
-        end
-
-
         # Converts an array of field names to an array of indexes of the fields
         # matching those names.
         def find_field_indexes(key_fields, field_names)
@@ -231,7 +220,32 @@ class CSVDiff
         end
 
 
-        def include_line?(line)
+        def convert_filter(options, key, field_names)
+            return unless hsh = options[key]
+            if !hsh.is_a?(Hash)
+                raise ArgumentError, ":#{key} option must be a Hash of field name(s)/index(es) to RegExp(s)"
+            end
+            keys = hsh.keys
+            idxs = find_field_indexes(keys, @field_names)
+            Hash[keys.each_with_index.map{ |k, i| [idxs[i], hsh[k]] }]
+        end
+
+
+        def check_filter(filter, field_val)
+            case filter
+            when String
+                if @case_sensitive
+                    filter == field_val
+                else
+                    filter.downcase == field_val.to_s.downcase
+                end
+            when Regexp
+                filter.match(field_val)
+            when Proc
+                filter.call(field_val)
+            else
+                raise ArgumentError, "Unsupported filter expression: #{filter.inspect}"
+            end
         end
 
     end

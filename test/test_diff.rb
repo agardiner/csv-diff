@@ -54,8 +54,8 @@ class TestDiff < Test::Unit::TestCase
     def test_exclude_filter
         src = CSVDiff::CSVSource.new(DATA1, key_fields: [0, 1], exclude: {Description: /Account\d/})
         assert_equal(1, src.skip_count)
-        src = CSVDiff::CSVSource.new(DATA2, key_fields: [0, 1], exclude: {2 => /Account\d/})
-        assert_equal(2, src.skip_count)
+        src = CSVDiff::CSVSource.new(DATA2, key_fields: [0, 1], exclude: {2 => lambda{ |v| v[0...3] == 'ACC'}})
+        assert_equal(1, src.skip_count)
     end
 
 end

@@ -1,11 +1,11 @@
 GEMSPEC = Gem::Specification.new do |s|
     s.name = "csv-diff"
-    s.version = "0.3.2"
+    s.version = "0.3.3"
     s.authors = ["Adam Gardiner"]
-    s.date = "2016-05-28"
+    s.date = "2017-05-17"
     s.summary = "CSV Diff is a library for generating diffs from data in CSV format"
     s.description = <<-EOQ
-        This library performs diffs of CSV files.
+        This library performs diffs of CSV files (or table-like sources).
 
         Unlike a standard diff that compares line by line, and is sensitive to the
         ordering of records, CSV-Diff identifies common lines by key field(s), and
@@ -23,12 +23,14 @@ GEMSPEC = Gem::Specification.new do |s|
         sibling order.
 
         This gem implements the core diff algorithm, and handles the loading and
-        diffing of CSV files. It returns a CSVDiff object, that contains the details
-        of differences in object form. This is useful for projects that need diff
-        capability, but want to handle the reporting of differences themselves. For
-        a pre-built diff reporting capability, see the csv-diff-report gem, which
-        provides a command-line tool for generating diff reports in HTML or Excel
-        format.
+        diffing of CSV files (or Arrays of Arrays). It returns a CSVDiff object
+        containing the details of differences in object form. This is useful for
+        projects that need diff capability, but want to handle the reporting or
+        actioning of differences themselves.
+
+        For a pre-built diff reporting capability, see the csv-diff-report gem,
+        which provides a command-line tool for generating diff reports in HTML,
+        Excel, or text formats.
     EOQ
     s.email = "adam.b.gardiner@gmail.com"
     s.homepage = 'https://github.com/agardiner/csv-diff'
