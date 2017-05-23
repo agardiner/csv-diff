@@ -209,7 +209,7 @@ class CSVDiff
         # matching those names.
         def find_field_indexes(key_fields, field_names)
             key_fields.map do |field|
-                if field.is_a?(Fixnum)
+                if field.is_a?(Integer)
                     field
                 else
                     field_names.index{ |field_name| field.to_s.downcase == field_name.downcase } or
