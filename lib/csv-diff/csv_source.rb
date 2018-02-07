@@ -154,7 +154,7 @@ class CSVDiff
                 line_num += 1
                 next if line_num == 1 && @field_names && options[:ignore_header]
                 unless @field_names
-                    @field_names = row
+                    @field_names = row.each_with_index.map{ |f, i| f || i.to_s }
                     index_fields(options)
                     next
                 end
