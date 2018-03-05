@@ -176,10 +176,10 @@ class CSVDiff
                     @skip_count += 1
                     next
                 end
-                key_values = @key_field_indexes.map{ |kf| field_vals[kf].to_s.upcase }
+                key_values = @key_field_indexes.map{ |kf| @case_sensitive ?
+                                                     field_vals[kf].to_s : field_vals[kf].to_s.upcase }
                 key = key_values.join('~')
                 parent_key = key_values[0...(@parent_fields.length)].join('~')
-                parent_key.upcase! unless @case_sensitive
                 if @lines[key]
                     @warnings << "Duplicate key '#{key}' encountered and ignored at line #{line_num}"
                     @skip_count += 1
