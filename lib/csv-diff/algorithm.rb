@@ -155,7 +155,7 @@ class CSVDiff
                 elsif right_idx
                     # Add
                     child = key_vals[parent_field_count..-1].join('~')
-                    if potential_moves.has_key?(child) && old_key = potential_moves[child].pop
+                    if include_moves && potential_moves.has_key?(child) && old_key = potential_moves[child].pop
                         diffs.delete(old_key)
                         if include_updates
                             left_value = left_values[old_key]
