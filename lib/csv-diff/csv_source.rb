@@ -107,7 +107,7 @@ class CSVDiff
                 # When you call CSV.open, it's best to pass in a block so that after it's yielded,
                 # the underlying file handle is closed. Otherwise, you risk leaking the handle.
                 CSV.open(@path, mode_string, csv_options) do |csv|
-                    source = temp_csv.readlines
+                    source = csv.readlines
                 end
             elsif !source.is_a?(Enumerable) || (source.is_a?(Enumerable) && source.size > 0 &&
                                                 !source.first.is_a?(Enumerable))
