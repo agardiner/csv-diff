@@ -81,9 +81,11 @@ class CSVDiff
     # @option options [Boolean] :ignore_deletes If true, records that appear
     #   in the left/from file but not in the right/to file are not reported.
     def initialize(left, right, options = {})
-        @left = left.is_a?(CSVSource) ? left : CSVSource.new(left, options)
+        @left = left.is_a?(Source) ? left : CSVSource.new(left, options)
+        @left.index_source if @left.lines.nil?
         raise "No field names found in left (from) source" unless @left.field_names && @left.field_names.size > 0
-        @right = right.is_a?(CSVSource) ? right : CSVSource.new(right, options)
+        @right = right.is_a?(Source) ? right : CSVSource.new(right, options)
+        @right.index_source if @right.lines.nil?
         raise "No field names found in right (to) source" unless @right.field_names && @right.field_names.size > 0
         @warnings = []
         @diff_fields = get_diff_fields(@left.field_names, @right.field_names, options)
