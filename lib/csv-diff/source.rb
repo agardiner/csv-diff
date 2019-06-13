@@ -91,7 +91,7 @@ class CSVDiff
         # @option options [Hash] :exclude A hash of field name(s) or index(es) to
         #   regular expression(s). Source rows with a field value that satisfies
         #   the regular expressions will be excluded from the diff process.
-        def initialize(source, options = {})
+        def initialize(options = {})
             if (options.keys & [:parent_field, :parent_fields, :child_field, :child_fields]).empty? &&
                (kf = options.fetch(:key_field, options[:key_fields]))
                 @key_fields = [kf].flatten
