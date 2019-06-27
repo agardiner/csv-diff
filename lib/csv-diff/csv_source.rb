@@ -60,7 +60,7 @@ class CSVDiff
                 @data = CSV.open(@path, mode_string, csv_options) do |csv|
                      csv.readlines
                 end
-            elsif source.is_a?(Enumerable) && source.size > 0 && source.first.is_a?(Enumerable)
+            elsif source.is_a?(Enumerable) && source.size == 0 || (source.size > 0 && source.first.is_a?(Enumerable))
                 @data = source
             else
                 raise ArgumentError, "source must be a path to a file or an Enumerable<Enumerable>"
