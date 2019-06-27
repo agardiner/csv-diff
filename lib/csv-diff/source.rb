@@ -179,6 +179,22 @@ class CSVDiff
             end
         end
 
+ 
+        # Save the data in this Source as a CSV at +file_path+.
+        #
+        # @parma file_path [String] The target path to save the data to.
+        # @param options [Hash] A set of options to pass to CSV.open to control
+        #   how the CSV is generated.
+        def save_csv(file_path, options = {})
+            require 'csv'
+            default_opts = {
+                headers: @field_name, write_headers: true
+            }
+            CSV.open(file_path, 'wb', default_opts.merge(options)) do |csv|
+                @data.each{ |rec| csv << rec }
+            end
+        end
+
 
         private
 
