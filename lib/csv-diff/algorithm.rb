@@ -36,8 +36,6 @@ class CSVDiff
             # For backwards compatibility and access to fields with differences
             def [](key)
                 case key
-                when String
-                    @fields[key]
                 when :action
                     a = diff_type.to_s
                     a[0] = a[0].upcase
@@ -46,6 +44,8 @@ class CSVDiff
                     @row
                 when :sibling_position
                     @sibling_position
+                else
+                    @fields[key]
                 end
             end
 
