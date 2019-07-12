@@ -1,4 +1,5 @@
 require 'nokogiri'
+require 'cgi'
 
 
 class CSVDiff
@@ -120,7 +121,7 @@ class CSVDiff
                         end
                     when %r{[/(.@]}     # XPath expression
                         res = rec_node.xpath(expr)
-                        rec << res.to_s
+                        rec << CGI.unescape_html(res.to_s)
                     else                # Use expr as the value for this field
                         rec << expr
                     end
