@@ -49,9 +49,12 @@ class CSVDiff
         # @return [Fixnum] A count of the lines processed from this source.
         #   Excludes any header and duplicate records identified during indexing.
         attr_reader :line_count
-        # @return [Fixnum] A count of the lines from this source that were skipped,
-        #   due either to duplicate keys or filter conditions.
+        # @return [Fixnum] A count of the lines from this source that were skipped
+        #   due to filter conditions.
         attr_reader :skip_count
+        # @return [Fixnum] A count of the lines from this source that had the same
+        #   key value as another line.
+        attr_reader :dup_count
 
 
         # Creates a new diff source.
@@ -134,6 +137,7 @@ class CSVDiff
             end
             @line_count = 0
             @skip_count = 0
+            @dup_count = 0
             line_num = 0
             @data.each do |row|
                 line_num += 1
@@ -169,13 +173,13 @@ class CSVDiff
                 key = key_values.join('~')
                 parent_key = key_values[0...(@parent_fields.length)].join('~')
                 if @lines[key]
-                    @warnings << "Duplicate key '#{key}' encountered and ignored at line #{line_num}"
-                    @skip_count += 1
-                else
-                    @index[parent_key] << key
-                    @lines[key] = line
-                    @line_count += 1
+                    @warnings << "Duplicate key '#{key}' encountered at line #{line_num}"
+                    @dup_count += 1
+                    @key += "[#{@dup_count}]"
                 end
+                @index[parent_key] << key
+                @lines[key] = line
+                @line_count += 1
             end
         end
 
