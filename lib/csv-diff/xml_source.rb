@@ -75,6 +75,8 @@ class CSVDiff
         def process(source, rec_xpath, field_maps, context = nil)
             @field_names = field_maps.keys unless @field_names
             case source
+            when Nokogiri::XML::Document
+                add_data(source, rec_xpath, field_maps, context || @context)
             when /<\?xml/
                 doc = Nokogiri::XML(source)
                 add_data(doc, rec_xpath, field_maps, context || @context)
@@ -82,6 +84,8 @@ class CSVDiff
                 source.each{ |f| process_file(f, rec_xpath, field_maps) }
             when String
                 process_file(source, rec_xpath, field_maps)
+            else
+                raise ArgumentError, "Unhandled source type #{source.class.name}"
             end
             @data
         end
