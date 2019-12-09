@@ -149,7 +149,11 @@ class CSVDiff
                 line_num += 1
                 next if line_num == 1 && @field_names && @ignore_header
                 unless @field_names
-                    @field_names = row.each_with_index.map{ |f, i| f || i.to_s }
+                    if row.class.name == 'CSV::Row'
+                        @field_names = row.headers.each_with_index.map{ |f, i| f || i.to_s }
+                    else
+                        @field_names = row.each_with_index.map{ |f, i| f || i.to_s }
+                    end
                     index_fields
                     include_filter = convert_filter(@include, @field_names)
                     exclude_filter = convert_filter(@exclude, @field_names)
@@ -159,8 +163,9 @@ class CSVDiff
                 line = {}
                 filter = false
                 @field_names.each_with_index do |field, i|
-                    line[field] = field_vals[i]
-                    line[field].strip! if @trim_whitespace && line[field]
+                    val = field_vals[i]
+                    val = val.to_s.strip if val && @trim_whitespace
+                    line[field] = val
                     if include_filter && f = include_filter[i]
                         filter = !check_filter(f, line[field])
                     end
@@ -237,7 +242,7 @@ class CSVDiff
         def convert_filter(hsh, field_names)
             return unless hsh
             if !hsh.is_a?(Hash)
-                raise ArgumentError, ":#{key} option must be a Hash of field name(s)/index(es) to RegExp(s)"
+                raise ArgumentError, ":include/:exclude option must be a Hash of field name(s)/index(es) to RegExp(s)"
             end
             keys = hsh.keys
             idxs = find_field_indexes(keys, @field_names)
