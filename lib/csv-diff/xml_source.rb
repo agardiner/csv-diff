@@ -8,6 +8,8 @@ class CSVDiff
     # rows and field values in an XML document
     class XMLSource < Source
 
+        attr_accessor :context
+
         # Create a new XMLSource, identified by +path+. Normally this is a path
         # to the XML document, but any value is fine, as it isreally just a label
         # to identify this data set.

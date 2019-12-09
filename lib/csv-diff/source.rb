@@ -111,7 +111,13 @@ class CSVDiff
             @ignore_header = options[:ignore_header]
             @include = options[:include]
             @exclued = options[:exclude]
+            @path = options.fetch(:path, 'NA') unless @path
             @warnings = []
+        end
+
+
+        def path?
+            @path != 'NA'
         end
 
 
