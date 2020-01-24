@@ -78,6 +78,9 @@ class CSVDiff
             unless left.case_sensitive? == right.case_sensitive?
                 raise ArgumentError, "Left and right must have same settings for case-sensitivity"
             end
+            unless left.parent_fields.length == right.parent_fields.length
+                raise ArgumentError, "Left and right must have same settings for parent/child fields"
+            end
 
             # Ensure key fields are not also in the diff_fields
             diff_fields = diff_fields - key_fields
