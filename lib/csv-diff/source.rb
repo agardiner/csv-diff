@@ -6,6 +6,8 @@ class CSVDiff
 
         # @return [String] the path to the source file
         attr_accessor :path
+        # @return [Array<Arrary>] The data for this source
+        attr_reader :data
 
         # @return [Array<String>] The names of the fields in the source file
         attr_reader :field_names
