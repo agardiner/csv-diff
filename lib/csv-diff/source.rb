@@ -188,7 +188,7 @@ class CSVDiff
                 if @lines[key]
                     @warnings << "Duplicate key '#{key}' encountered at line #{line_num}"
                     @dup_count += 1
-                    @key += "[#{@dup_count}]"
+                    key += "[#{@dup_count}]"
                 end
                 @index[parent_key] << key
                 @lines[key] = line
