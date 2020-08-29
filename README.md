@@ -217,16 +217,17 @@ xml_source_1 = CSVDiff::XMLSource.new('My Label')
 ```
 
 Next, we pass XML documents to this source, and specify XPath expressions for each
-row and column of data to produce:
+row and column of data to produce via the `process(rec_xpath, field_maps, options)`
+method:
 
 * An XPath expression is provided to select each node value in the document that
   will represent a row. Taking an HTML table as an example of something we wanted
   to parse, your rec_xpath value might be something like the following:
   `'//table/tbody/tr'`. This would locate all tables in the document, and create
   a new row of data in the XMLSource every time a `<tr>` tag was encountered.
-* A hash of field_maps is then provided to describe how to generate columns values
+* A hash of field_maps is then provided to describe how to generate column values
   for each row of data. The keys to field_maps are the names of the fields to be
-  output, while the values are the epression for how to generate value. Most
+  output, while the values are the epression for how to generate values. Most
   commonly, this will be another XPath expression that is evaluated in the context
   of the node returned by the row XPath expression. So continuing our HTML example,
   we might use `'./td[0]/text()'` as an expression to select the content of the
