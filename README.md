@@ -197,6 +197,51 @@ DATA2 = [
 diff = CSVDiff.new(DATA1, DATA2, parent_field: 1, child_field: 0)
 ```
 
+Data can also be diffed if it is an XML source, although this requires a little
+more effor to tell CSVDiff how to transform/extract content from the XML document
+into an array-of-arrays form. It also introduces a dependency on Nokogiri - you
+will need to install this gem to use CSVDiff with XML sources.
+
+The first step is to use the CSVDiff::XMLSource class to define how to convert
+your XML content to an array-of-arrays. The XMLSource class is quite flexible,
+and can be used to convert single or multiple XML sources into a single data set
+for diffing, and different documents may even have different layouts.
+
+The first step is to create an XMLSource object, which requires a label to
+identify the type of data it will generate:
+```ruby
+xml_source_1 = CSVDiff::XMLSource.new('My Label')
+```
+
+Next, we pass XML documents to this source, and specify XPath expressions for each
+row and column of data to produce:
+
+* An XPath expression is provided to select each node value in the document that
+  will represent a row. Taking an HTML table as an example of something we wanted
+  to parse, your rec_xpath value might be something like the following:
+  `'//table/tbody/tr'`. This would locate all tables in the document, and create
+  a new row of data in the XMLSource every time a `<tr>` tag was encountered.
+* A hash of field_maps is then provided to describe how to generate columns values
+  for each row of data. The keys to field_maps are the names of the fields to be
+  output, while the values are the epression for how to generate value. Most
+  commonly, this will be another XPath expression that is evaluated in the context
+  of the node returned by the row XPath expression. So continuing our HTML example,
+  we might use `'./td[0]/text()'` as an expression to select the content of the
+  first `<td>` element within the `<tr>` representing the current row.
+
+```ruby
+xml_source1.process('//table/tbody/tr',
+                    col_A: './td[0]/text()',
+                    col_B: './td[1]/text()',
+                    col_C: './td[2]/text()')
+```
+
+Finally, to diff two XML sources, we create a CSVDiff object with two XMLSource
+objects as the source:
+```ruby
+diff = CSVDiff.new(xml_source1, xml_source2, key_field: 'col_A')
+```
+
 ### Specifying Column Names
 
 If your data file does not include column headers, you can specify the names of
