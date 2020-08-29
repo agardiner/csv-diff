@@ -26,17 +26,19 @@ sibling order.
 ## Usage
 
 CSV-Diff is supplied as a gem, and has no dependencies. To use it, simply:
-```
-gem install csv-diff
-```
+
+    ```
+    gem install csv-diff
+    ```
 
 To compare two CSV files where the field names are in the first row of the file,
 and the first field contains the unique key for each record, simply use:
-```ruby
-require 'csv-diff'
 
-diff = CSVDiff.new(file1, file2)
-```
+    ```ruby
+    require 'csv-diff'
+
+    diff = CSVDiff.new(file1, file2)
+    ```
 
 The returned diff object can be queried for the differences that exist between
 the two files, e.g.:
@@ -126,9 +128,10 @@ Warnings may be raised for any of the following:
 The simplest use case is as shown above, where the data to be diffed is in CSV files
 with the column names as the first record, and where the unique key is the first
 column in the data. In this case, a diff can be created simply via:
-```ruby
-diff = CSVDiff.new(file1, file2)
-```
+
+    ```ruby
+    diff = CSVDiff.new(file1, file2)
+    ```
 
 ### Specifying Unique Row Identifiers
 
@@ -145,7 +148,7 @@ different ways.
 The first method is using the **key_fields** option (or key_field if you have only a
 single key field). Use this option when your data represents a flat structure rather
 than a parent-child hierarchy or flattened tree. You can specify key_fields using
-either field numbers/column indices (0-based):
+field numbers/column indices (0-based):
 
     ```ruby
     diff = CSVDiff.new(file1, file2, key_fields: [0, 1])
@@ -198,7 +201,7 @@ diff = CSVDiff.new(DATA1, DATA2, parent_field: 1, child_field: 0)
 ```
 
 Data can also be diffed if it is an XML source, although this requires a little
-more effor to tell CSVDiff how to transform/extract content from the XML document
+more effort to tell CSVDiff how to transform/extract content from the XML document
 into an array-of-arrays form. It also introduces a dependency on Nokogiri - you
 will need to install this gem to use CSVDiff with XML sources.
 
