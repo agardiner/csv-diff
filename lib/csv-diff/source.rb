@@ -66,10 +66,13 @@ class CSVDiff
         # If not specified via one of the options, the first field is assumed to
         # be the unique key.
         #
-        # If multiple fields combine to form a unique key, the parent is assumed
-        # to be identified by all but the last field of the unique key. If finer
-        # control is required, use a combination of the :parent_fields and
-        # :child_fields options.
+        # If multiple fields combine to form a unique key, the combined fields
+        # are considered as a single unique identifier. If your key represents
+        # data that can be represented as a tree, you can instead break your key
+        # fields into :parent_fields and :child_fields. By doing this, if a child
+        # key is deleted from one parent, and added to another, that will be
+        # reported as an update, with a change to the parent key part(s) of the
+        # record.
         #
         # All key options can be specified either by field name, or by field
         # index (0 based).
@@ -100,8 +103,8 @@ class CSVDiff
             if (options.keys & [:parent_field, :parent_fields, :child_field, :child_fields]).empty? &&
                (kf = options.fetch(:key_field, options[:key_fields]))
                 @key_fields = [kf].flatten
-                @parent_fields = @key_fields[0...-1]
-                @child_fields = @key_fields[-1..-1]
+                @parent_fields = []
+                @child_fields = @key_fields
             else
                 @parent_fields = [options.fetch(:parent_field, options[:parent_fields]) || []].flatten
                 @child_fields = [options.fetch(:child_field, options[:child_fields]) || [0]].flatten

@@ -1,14 +1,19 @@
 # CSV-Diff
 
-CSV-Diff is a small library for performing diffs of CSV data.
+CSV-Diff is a small library for performing diffs of tabular data, typically
+data loaded from CSV files.
 
 Unlike a standard diff that compares line by line, and is sensitive to the
 ordering of records, CSV-Diff identifies common lines by key field(s), and
 then compares the contents of the fields in each line.
 
-Data may be supplied in the form of CSV files, or as an array of arrays. The
-diff process provides a fine level of control over what to diff, and can
-optionally ignore certain types of changes (e.g. changes in position).
+Data may be supplied in the form of CSV files, or as an array of arrays.
+More complex usage also allows you to specify XPath expressions to extract
+tabular data from XML documents for diffing.
+
+The diff process provides a fine level of control over what to diff, and can
+optionally ignore certain types of changes (e.g. adds, deletes, changes in
+position etc).
 
 CSV-Diff is particularly well suited to data in parent-child format. Parent-
 child data does not lend itself well to standard text diffs, as small changes
@@ -96,7 +101,7 @@ change in order) of all 6 rows.
 
 The more correct specification of this file is that column 0 contains a unique parent
 identifier, and column 1 contains a unique child identifier. CSVDiff can then correctly
-deduce that there is in fact only two changes in order - the swap in positions of A and
+deduce that there are in fact only two changes in order - the swap in positions of A and
 B below Root.
 
 Note: If you aren't interested in changes in the order of siblings, then you could use
@@ -129,35 +134,50 @@ diff = CSVDiff.new(file1, file2)
 
 Often however, rows are not uniquely identifiable via the first column in the file.
 In a parent-child hierarchy, for example, combinations of parent and child may be
-necessary to uniquely identify a row. In these cases, it is necessary to indicate
-which fields are used to uniquely identify common rows across the two files. This
-can be done in several different ways.
+necessary to uniquely identify a row, while in other cases a combination of fields
+may be needed to derive a natural unique key or identifier for each row.
+In these cases, it is necessary to indicate to CSVDiff which fields are needed to
+uniquely identify common rows across the two files. This can be done in several
+different ways.
 
-1. Using the :key_fields option with field numbers (these are 0-based):
+#### :key_field(s)
+
+The first method is using the **key_fields** option (or key_field if you have only a
+single key field). Use this option when your data represents a flat structure rather
+than a parent-child hierarchy or flattened tree. You can specify key_fields using
+either field numbers/column indices (0-based):
 
     ```ruby
     diff = CSVDiff.new(file1, file2, key_fields: [0, 1])
     ```
 
-2. Using the :key_fields options with column names:
+Alternatively, you can use the :key_fields options with column names (provided CSVDiff
+knows the names of your fields, either via the **field_names** option or from headers
+in the file):
 
     ```ruby
-    diff = CSVDiff.new(file1, file2, key_fields: ['Parent', 'Child'])
+    diff = CSVDiff.new(file1, file2, key_fields: ['First Name', 'Last Name'])
     ```
 
-3. Using the :parent_fields and :child_fields with field numbers:
+#### :parent_field(s)/:child_field(s)
+
+The second method for identifying the unique identifiers in your file is to use the
+:parent_fields and :child_fields options. Use this option when your data represents
+a tree structure flattened to a table in parent-child form.
+
+Using the :parent_fields and :child_fields with field numbers:
 
     ```ruby
     diff = CSVDiff.new(file1, file2, parent_field: 1, child_fields: [2, 3])
     ```
 
-4. Using the :parent_fields and :child_fields with column names:
+Using the :parent_fields and :child_fields with column names:
 
     ```ruby
     diff = CSVDiff.new(file1, file2, parent_field: 'Date', child_fields: ['HomeTeam', 'AwayTeam'])
     ```
 
-### Using Non-CSV File Sources
+### Using Non-CSV Sources
 
 Data from non-CSV sources can be diffed, as long as it can be supplied as an Array
 of Arrays:
@@ -174,7 +194,7 @@ DATA2 = [
     ['A', 'A2', 'Account2']
 ]
 
-diff = CSVDiff.new(DATA1, DATA2, key_fields: [1, 0])
+diff = CSVDiff.new(DATA1, DATA2, parent_field: 1, child_field: 0)
 ```
 
 ### Specifying Column Names
