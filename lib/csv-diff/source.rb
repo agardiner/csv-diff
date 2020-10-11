@@ -115,7 +115,7 @@ class CSVDiff
             @trim_whitespace = options.fetch(:trim_whitespace, false)
             @ignore_header = options[:ignore_header]
             @include = options[:include]
-            @exclued = options[:exclude]
+            @exclude = options[:exclude]
             @path = options.fetch(:path, 'NA') unless @path
             @warnings = []
         end
