@@ -214,6 +214,17 @@ class CSVDiff
                 @data.each{ |rec| csv << rec }
             end
         end
+    
+
+        # Convert the data in this source to Array<Hash> using the field names
+        # as keys for the Hash in each row.
+        def to_hash
+            @data.map do |row|
+                hsh = {}
+                @field_names.each_with_index.map{ |fld, i| hsh[fld] = row[i] }
+                hsh
+            end
+        end
 
 
         private

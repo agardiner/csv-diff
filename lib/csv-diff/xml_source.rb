@@ -11,8 +11,8 @@ class CSVDiff
         attr_accessor :context
 
         # Create a new XMLSource, identified by +path+. Normally this is a path
-        # to the XML document, but any value is fine, as it isreally just a label
-        # to identify this data set.
+        # to the XML document, but any value is fine, as it is just a label to
+        # identify this data set.
         #
         # @param path [String] A label for this data set (often a path to the
         #   XML document used as the source).
