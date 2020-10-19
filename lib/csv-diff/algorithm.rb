@@ -45,7 +45,7 @@ class CSVDiff
                 when :sibling_position
                     @sibling_position
                 else
-                    @fields[key]
+                    @fields[key] || @fields[key.to_s.intern] || @fields[key.to_s]
                 end
             end
 
