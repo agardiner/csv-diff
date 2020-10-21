@@ -1,5 +1,6 @@
 require 'test/unit'
 require 'csv-diff'
+require 'pp'
 
 
 class TestDiff < Test::Unit::TestCase
@@ -24,19 +25,19 @@ class TestDiff < Test::Unit::TestCase
     ]
 
     def test_array_diff
-        diff = CSVDiff.new(DATA1, DATA2, key_fields: [0, 1])
+        diff = CSVDiff.new(DATA1, DATA2, parent_field: 0, child_field: 1)
         #assert_equal(['Parent'], diff.left.parent_fields)
         #assert_equal(['Parent'], diff.right.parent_fields)
         #assert_equal(['Child'], diff.left.child_fields)
         #assert_equal(['Child'], diff.right.child_fields)
-        assert_equal(2, diff.adds.size)
-        assert_equal(1, diff.deletes.size)
-        assert_equal(3, diff.updates.size)
+        assert_equal(3, diff.adds.size)
+        assert_equal(2, diff.deletes.size)
+        assert_equal(2, diff.updates.size)
     end
 
 
     def test_case_insensitive_diff
-        diff = CSVDiff.new(DATA1, DATA2, key_fields: [0, 1], case_sensitive: false)
+        diff = CSVDiff.new(DATA1, DATA2, parent_field: 0, child_field: 1, case_sensitive: false)
         assert_equal(2, diff.adds.size)
         assert_equal(1, diff.deletes.size)
         assert_equal(2, diff.updates.size)
