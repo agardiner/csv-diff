@@ -110,7 +110,7 @@ class CSVDiff
                 @child_fields = [options.fetch(:child_field, options[:child_fields]) || [0]].flatten
                 @key_fields = @parent_fields + @child_fields
             end
-            @field_names = options[:field_names]
+            @field_names.map!(&:to_s) if @field_names = options[:field_names]
             @case_sensitive = options.fetch(:case_sensitive, true)
             @trim_whitespace = options.fetch(:trim_whitespace, false)
             @ignore_header = options[:ignore_header]
