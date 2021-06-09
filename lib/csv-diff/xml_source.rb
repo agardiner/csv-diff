@@ -75,7 +75,7 @@ class CSVDiff
         #   using a Regexp, with the value of the first grouping in the regex
         #   being the value returned for the field.
         def process(source, rec_xpath, field_maps, context = nil)
-            @field_names = field_maps.keys unless @field_names
+            @field_names = field_maps.keys.map(&:to_s) unless @field_names
             case source
             when Nokogiri::XML::Document
                 add_data(source, rec_xpath, field_maps, context || @context)
